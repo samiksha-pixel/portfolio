@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Github, Linkedin } from "lucide-react";
@@ -11,6 +11,18 @@ export default function Portfolio() {
   // Custom cursor state
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+
+  const { scrollY } = useScroll();
+  const [isNavHidden, setIsNavHidden] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest > previous && latest > 150) {
+      setIsNavHidden(true);
+    } else {
+      setIsNavHidden(false);
+    }
+  });
 
   useEffect(() => {
     const updateMousePosition = (e: MouseEvent) => {
@@ -43,21 +55,36 @@ export default function Portfolio() {
       />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-40 p-4 md:p-12 flex justify-center md:justify-end items-center bg-[#050505]/80 backdrop-blur-md border-b border-white/5 md:border-none">
-        <nav className="flex gap-6 md:gap-8 text-xs md:text-sm uppercase tracking-widest">
+      <motion.header 
+        variants={{
+          visible: { y: 0 },
+          hidden: { y: "-100%" },
+        }}
+        animate={isNavHidden ? "hidden" : "visible"}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+        className="fixed top-0 left-0 w-full z-50 p-6 md:p-12 flex justify-between items-center bg-[#050505]/90 backdrop-blur-md border-b border-white/5 md:border-none"
+      >
+        <div 
+          className="font-serif text-xl md:text-2xl font-bold tracking-tighter text-white cursor-default"
+          onMouseEnter={() => setIsHovering(true)} 
+          onMouseLeave={() => setIsHovering(false)}
+        >
+          Samiksha Sinha
+        </div>
+        <nav className="flex gap-4 md:gap-8 text-[10px] md:text-sm uppercase tracking-widest text-white pointer-events-auto">
           <a href="#work" className="hover:opacity-70 transition-opacity" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Work</a>
           <a href="#about" className="hover:opacity-70 transition-opacity" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>About</a>
           <a href="#contact" className="hover:opacity-70 transition-opacity" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Contact</a>
         </nav>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
-      <section className="relative h-screen flex flex-col justify-center px-6 md:px-12">
+      <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 md:pt-0">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="z-10"
+          className="z-10 mt-10 md:mt-0"
         >
           <h1 className="font-serif text-[12vw] leading-[0.85] tracking-tighter uppercase mb-6">
             Samiksha<br />
@@ -151,7 +178,7 @@ export default function Portfolio() {
           <div className="text-sm uppercase tracking-widest text-gray-500 mb-8">
             [ 03 — Let&apos;s Connect ]
           </div>
-          <h2 className="font-serif text-[6.5vw] sm:text-[5vw] md:text-[4vw] lg:text-[4vw] mb-12 hover:italic transition-all cursor-pointer inline-block w-full break-words"
+          <h2 className="font-serif text-[7vw] sm:text-[6vw] md:text-[5vw] lg:text-[4.5vw] mb-12 hover:italic transition-all cursor-pointer break-all px-4 max-w-full block"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
           >
